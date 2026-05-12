@@ -38,6 +38,8 @@ public class CorsGlobalConfiguration {
     responseHeaders.add("Access-Control-Allow-Credentials", "true");
     responseHeaders.add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
     responseHeaders.add("Access-Control-Max-Age", "3600");
-    responseHeaders.add("Access-Control-Allow-Headers", "Content-Type");
+    responseHeaders.add("Access-Control-Allow-Headers",
+        "Content-Type, Accept, Authorization, Mcp-Session-Id, Last-Event-ID");
+    responseHeaders.add("Access-Control-Expose-Headers", "Mcp-Session-Id");
   }
 }

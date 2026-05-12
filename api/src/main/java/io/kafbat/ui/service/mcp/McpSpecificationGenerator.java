@@ -55,19 +55,25 @@ public class McpSpecificationGenerator {
   private AsyncToolSpecification convertOperation(Method method, Operation annotation, McpTool instance) {
     String name = annotation.operationId();
     String description = annotation.description().isEmpty() ? name : annotation.description();
-    return new AsyncToolSpecification(
-        new McpSchema.Tool(name, description, operationSchema(method, instance)),
-        methodCall(method, instance)
-    );
+    McpSchema.Tool tool = McpSchema.Tool.builder()
+        .name(name)
+        .description(description)
+        .inputSchema(operationSchema(method, instance))
+        .build();
+    return AsyncToolSpecification.builder()
+        .tool(tool)
+        .callHandler(methodCall(method, instance))
+        .build();
   }
 
   @SuppressWarnings("unchecked")
-  private BiFunction<McpAsyncServerExchange, Map<String, Object>, Mono<CallToolResult>>
+  private BiFunction<McpAsyncServerExchange, McpSchema.CallToolRequest, Mono<CallToolResult>>
       methodCall(Method method, Object instance) {
 
-    return (ex, args) -> Mono.deferContextual(ctx -> {
+    return (ex, request) -> Mono.deferContextual(ctx -> {
       try {
         ServerWebExchange serverWebExchange = ctx.get(ServerWebExchange.class);
+        Map<String, Object> args = request.arguments() == null ? Map.of() : request.arguments();
         Mono<Object> result = (Mono<Object>) method.invoke(
             instance,
             toParams(args, method.getParameters(), ex, serverWebExchange)
@@ -105,28 +111,28 @@ public class McpSpecificationGenerator {
 
   private CallToolResult callToolResult(Object result) {
     try {
-      return new CallToolResult(
-          List.of(new McpSchema.TextContent(objectMapper.writeValueAsString(result))),
-          false
-      );
+      return CallToolResult.builder()
+          .addTextContent(objectMapper.writeValueAsString(result))
+          .isError(false)
+          .build();
     } catch (Exception e) {
       return toErrorResult(e);
     }
   }
 
   protected CallToolResult toErrorResult(String body) {
-    return new CallToolResult(
-        List.of(new McpSchema.TextContent(body)),
-        true
-    );
+    return CallToolResult.builder()
+        .addTextContent(body)
+        .isError(true)
+        .build();
   }
 
   protected CallToolResult toErrorResult(Throwable e) {
     log.warn("Error responded to MCP Client: {}", e.getMessage(), e);
-    return new CallToolResult(
-        List.of(new McpSchema.TextContent(e.getMessage())),
-        true
-    );
+    return CallToolResult.builder()
+        .addTextContent(e.getMessage())
+        .isError(true)
+        .build();
   }
 
   private Object[] toParams(

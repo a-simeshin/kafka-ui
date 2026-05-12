@@ -32,6 +32,8 @@ configurations.all {
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 dependencies {
+    implementation platform(libs.spring.ai.bom)
+
     implementation project(":contract")
     implementation project(":serde-api")
     implementation libs.spring.starter.webflux
@@ -106,7 +108,7 @@ dependencies {
     implementation libs.okhttp3.logging.intercepter
     implementation libs.lz4.yawk
 
-    implementation libs.modelcontextprotocol.spring.webflux
+    implementation libs.spring.ai.starter.mcp.server.webflux
     implementation libs.victools.jsonschema.generator
 
 

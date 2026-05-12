@@ -1,6 +1,12 @@
 auth:
   type: DISABLED
 
+spring:
+  ai:
+    mcp:
+      server:
+        enabled: false
+
 management:
   endpoint:
     info:

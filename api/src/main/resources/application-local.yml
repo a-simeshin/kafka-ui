@@ -13,6 +13,25 @@ logging:
 spring:
   jmx:
     enabled: true
+  ai:
+    mcp:
+      server:
+        enabled: true
+        protocol: STREAMABLE
+        type: ASYNC
+        name: Kafka UI MCP
+        version: 0.0.1
+        capabilities:
+          tool: true
+          resource: true
+          prompt: false
+          completion: false
+        streamable-http:
+          mcp-endpoint: /mcp
+          keep-alive-interval: 30s
+          disallow-delete: false
+        annotation-scanner:
+          enabled: false
   ldap:
     urls: ldap://localhost:10389
     base: "cn={0},ou=people,dc=planetexpress,dc=com"
